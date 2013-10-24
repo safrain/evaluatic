@@ -1,4 +1,6 @@
-package com.github.safrain.evaluatic.resource;
+package com.github.safrain.evaluatic.repository;
+
+import com.github.safrain.evaluatic.SourceCode;
 
 import java.util.List;
 
@@ -15,7 +17,7 @@ public interface SourceCodeRepository {
      * @param name Name of the source code
      * @return
      */
-    boolean hasSourceCode(String name);
+    boolean exists(String name);
 
     /**
      * Return source code with given name
