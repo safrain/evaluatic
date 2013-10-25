@@ -12,7 +12,7 @@ allprojects {
 
 subprojects {
     apply plugin: 'java'
-
+    apply plugin: 'eclipse'
     configurations {
         provided
     }
@@ -28,9 +28,9 @@ subprojects {
 
 project(':evaluatic-core') {
     dependencies {
-        provided 'javax.servlet:servlet-api:2.5'
-        provided 'org.springframework:spring:2.5.6.SEC03'
-        provided 'mysql:mysql-connector-java:5.1.18'
+        compile 'javax.servlet:servlet-api:2.5'
+        compile 'org.springframework:spring:2.5.6.SEC03'
+        compile 'mysql:mysql-connector-java:5.1.18'
         testCompile 'org.codehaus.groovy:groovy-all:1.8.9'
     }
 
@@ -100,17 +100,18 @@ project(':evaluatic-groovy') {
         compile project(':evaluatic-core')
     }
 }
-
-//project(':evaluatic-test-server') {
-//    apply plugin: 'war'
-//    apply plugin: 'jetty'
-//    [jettyRun, jettyRunWar].each {
-//        it.contextPath = '/'
-//    }
-//    dependencies {
-//        compile 'javax.servlet:servlet-api:2.5'
-//        compile 'org.springframework:spring:2.5.6.SEC03'
-//        compile 'org.codehaus.groovy:groovy-all:1.8.7'
-//        compile project(':evaluatic-core')
-//    }
-//}
+project(':evaluatic-example') {
+    apply plugin: 'war'
+    apply plugin: 'jetty'
+    [jettyRun, jettyRunWar].each {
+        it.contextPath = '/'
+    }
+    dependencies {
+        compile 'javax.servlet:servlet-api:2.5'
+        compile 'mysql:mysql-connector-java:5.1.18'
+        compile 'org.springframework:spring:2.5.6.SEC03'
+        compile 'org.codehaus.groovy:groovy-all:1.8.9'
+        compile project(':evaluatic-core')
+        compile project(':evaluatic-groovy')
+    }
+}

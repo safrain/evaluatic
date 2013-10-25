@@ -46,7 +46,7 @@ public class GroovyEngineFactory implements EngineFactory {
     private Class<?> compile(SourceCode sourceCode) {
         String name = sourceCode.getName();
         Cache cache = compiledCache.get(name);
-        if (cache == null || cache.sourceCode.getLastModified() < sourceCode.getLastModified()) {
+        if (cache == null || !cache.sourceCode.getSource().equals(sourceCode.getSource())) {
             synchronized (lock) {
                 //Discard compiled class
                 compiledCache.remove(name);

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="GBK"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd"
+       default-autowire="byName">
+
+    <bean name="scriptRuntime" class="com.github.safrain.evaluatic.ScriptRuntime">
+        <property name="loaderName" value="com/github/safrain/evaluatic/example/loader.groovy"/>
+        <property name="engineFactory">
+            <bean class="com.github.safrain.evaluatic.groovy.GroovyEngineFactory"/>
+        </property>
+        <property name="sourceCodeRepository">
+            <bean class="com.github.safrain.evaluatic.repository.FileSystemRepository">
+                <property name="baseDirectory" value="/home/safrain/code/evaluatic/link"/>
+            </bean>
+            <!--<bean class="com.github.safrain.evaluatic.repository.ClassPathRepository">-->
+                <!--<property name="basePackage" value="com/github/safrain/evaluatic/example"/>-->
+            <!--</bean>-->
+        </property>
+    </bean>
+
+</beans>

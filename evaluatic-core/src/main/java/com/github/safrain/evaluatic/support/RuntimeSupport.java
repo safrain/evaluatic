@@ -14,7 +14,7 @@ public class RuntimeSupport {
     public static final InheritableThreadLocal<Map<String, Object>> configThreadLocal = new InheritableThreadLocal<Map<String, Object>>();
 
 
-    public static SourceCode load(String name) throws SourceCodeRepository.SourceCodeNotExistException {
+    public static SourceCode load(String name) {
         SourceCodeRepository repo = getScriptRuntime().getSourceCodeRepository();
         return repo.get(name);
     }

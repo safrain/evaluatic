@@ -1,1 +1,1 @@
-include 'evaluatic-core', 'evaluatic-groovy'
+include 'evaluatic-core', 'evaluatic-groovy', 'evaluatic-example'

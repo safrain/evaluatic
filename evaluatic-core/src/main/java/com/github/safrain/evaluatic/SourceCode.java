@@ -8,7 +8,6 @@ package com.github.safrain.evaluatic;
 public class SourceCode {
     private String name;
     private String source;
-    private long lastModified;
 
     public String getName() {
         return name;
@@ -24,13 +23,5 @@ public class SourceCode {
 
     public void setSource(String source) {
         this.source = source;
-    }
-
-    public long getLastModified() {
-        return lastModified;
-    }
-
-    public void setLastModified(long lastModified) {
-        this.lastModified = lastModified;
     }
 }

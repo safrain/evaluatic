@@ -1,6 +1,8 @@
 package com.github.safrain.evaluatic.repository;
 
 import com.github.safrain.evaluatic.SourceCode;
+import com.github.safrain.evaluatic.exception.SourceCodeModificationFailedException;
+import com.github.safrain.evaluatic.exception.SourceCodeNotFoundException;
 
 import java.util.List;
 
@@ -24,9 +26,9 @@ public interface SourceCodeRepository {
      *
      * @param name Name of the source code
      * @return Resource with given name
-     * @throws SourceCodeNotExistException If requested source code does not exist
+     * @throws SourceCodeNotFoundException If requested source code does not exist
      */
-    SourceCode get(String name) throws SourceCodeNotExistException;
+    SourceCode get(String name) throws SourceCodeNotFoundException;
 
     /**
      * Save given source code in this respository
@@ -60,50 +62,5 @@ public interface SourceCodeRepository {
      */
     List<SourceCode> list();
 
-
-    /**
-     * Thrown if requested source code does not exists in SourceCodeRepository
-     *
-     * @author safrain
-     */
-    public class SourceCodeNotExistException extends RuntimeException {
-        public SourceCodeNotExistException() {
-        }
-
-        public SourceCodeNotExistException(String message) {
-            super(message);
-        }
-
-        public SourceCodeNotExistException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public SourceCodeNotExistException(Throwable cause) {
-            super(cause);
-        }
-    }
-
-
-    /**
-     * Thrown if create/update/delete is failed
-     *
-     * @author safrain
-     */
-    public class SourceCodeModificationFailedException extends RuntimeException {
-        public SourceCodeModificationFailedException() {
-        }
-
-        public SourceCodeModificationFailedException(String message) {
-            super(message);
-        }
-
-        public SourceCodeModificationFailedException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public SourceCodeModificationFailedException(Throwable cause) {
-            super(cause);
-        }
-    }
 
 }

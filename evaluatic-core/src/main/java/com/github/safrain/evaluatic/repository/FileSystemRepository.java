@@ -2,6 +2,8 @@ package com.github.safrain.evaluatic.repository;
 
 
 import com.github.safrain.evaluatic.SourceCode;
+import com.github.safrain.evaluatic.exception.SourceCodeModificationFailedException;
+import com.github.safrain.evaluatic.exception.SourceCodeNotFoundException;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -10,7 +12,7 @@ import java.util.List;
 public class FileSystemRepository implements SourceCodeRepository {
 
     private File baseDirectory;
-    private String charset;
+    private String charset = "utf-8";
 
     private SourceCode fileToSourceCode(File file) {
         FileInputStream fis;
@@ -32,7 +34,6 @@ public class FileSystemRepository implements SourceCodeRepository {
 
         SourceCode sourceCode = new SourceCode();
         sourceCode.setName(name);
-        sourceCode.setLastModified(file.lastModified());
         try {
             sourceCode.setSource(new String(resourceValue, charset));
         } catch (UnsupportedEncodingException e) {
@@ -47,14 +48,14 @@ public class FileSystemRepository implements SourceCodeRepository {
     }
 
     @Override
-    public SourceCode get(String name) throws SourceCodeNotExistException {
+    public SourceCode get(String name) throws SourceCodeNotFoundException {
         File file = new File(baseDirectory, name);
         if (!file.isFile()) {
-            throw new SourceCodeNotExistException(name);
+            throw new SourceCodeNotFoundException(name);
         }
         SourceCode resource = fileToSourceCode(file);
         if (resource == null) {
-            throw new SourceCodeNotExistException(name);
+            throw new SourceCodeNotFoundException(name);
         }
         return resource;
     }
@@ -72,17 +73,17 @@ public class FileSystemRepository implements SourceCodeRepository {
             }
             fos.flush();
         } catch (Exception e) {
-            throw new SourceCodeModificationFailedException(e);
+            throw new SourceCodeModificationFailedException(sourceCode.getName(), e);
         } finally {
             Util.closeQuietly(fos);
         }
     }
 
     @Override
-    public void update(SourceCode sourceCode) throws SourceCodeModificationFailedException {
+    public void update(SourceCode sourceCode) throws SourceCodeNotFoundException, SourceCodeModificationFailedException {
         File file = new File(baseDirectory, sourceCode.getName());
         if (!file.isFile()) {
-            throw new SourceCodeNotExistException(sourceCode.getName());
+            throw new SourceCodeNotFoundException(sourceCode.getName());
         }
         FileOutputStream fos = null;
         try {
@@ -92,7 +93,7 @@ public class FileSystemRepository implements SourceCodeRepository {
             }
             fos.flush();
         } catch (Exception e) {
-            throw new SourceCodeModificationFailedException(e);
+            throw new SourceCodeModificationFailedException(sourceCode.getName(), e);
         } finally {
             Util.closeQuietly(fos);
         }
@@ -100,10 +101,10 @@ public class FileSystemRepository implements SourceCodeRepository {
 
 
     @Override
-    public void delete(String name) throws SourceCodeModificationFailedException {
+    public void delete(String name) throws SourceCodeNotFoundException, SourceCodeModificationFailedException {
         File file = new File(baseDirectory, name);
         if (!file.isFile()) {
-            throw new SourceCodeNotExistException(name);
+            throw new SourceCodeNotFoundException(name);
         }
         if (!file.delete()) {
             throw new SourceCodeModificationFailedException("Delete failed file:" + name);
