@@ -18,101 +18,96 @@ import java.util.Map;
  * @author safrain
  */
 public class GroovyEngineFactory implements EngineFactory {
-    static final String GROOVY_EXTENSION = ".groovy";
-    private final Object lock = new Object();
+	static final String GROOVY_EXTENSION = ".groovy";
+	private final Object lock = new Object();
 
-    private Map<String, Cache> compiledCache = new HashMap<String, Cache>();
-    private GroovyClassLoader groovyClassLoader = new GroovyClassLoader();
+	private Map<String, Cache> compiledCache = new HashMap<String, Cache>();
+	private GroovyClassLoader groovyClassLoader = new FuckCL();
 
-    public void clearCache() {
-        compiledCache = new HashMap<String, Cache>();
-        groovyClassLoader = new GroovyClassLoader();
-    }
+	public void clearCache() {
+		compiledCache = new HashMap<String, Cache>();
+		groovyClassLoader = new FuckCL();
+	}
 
-    @Override
-    public Engine createEngine() {
-        return new GroovyEngine();
-    }
+	@Override
+	public Engine createEngine() {
+		return new GroovyEngine();
+	}
 
+	public Class<?> compile(SourceCode sourceCode) {
+		String name = sourceCode.getName();
+		Cache cache = compiledCache.get(name);
+		if (cache == null || !cache.sourceCode.getSource().equals(sourceCode.getSource())) {
+			synchronized (lock) {
+				//Discard compiled class
+				compiledCache.remove(name);
+				//Check extension
+				if (name.length() <= GROOVY_EXTENSION.length() || !name.endsWith(GROOVY_EXTENSION)) {
+					throw new RuntimeException("Not a groovy source file");
+				}
+				//Extract class name
+				String chopped = name.substring(0, name.length() - GROOVY_EXTENSION.length());
+				String codeBase;
+				String className;
+				int lastIndex = chopped.lastIndexOf('/');
+				if (lastIndex == -1) {
+					codeBase = "/";
+					className = chopped;
+				} else {
+					codeBase = "/" + chopped.substring(0, lastIndex);
+					className = chopped.substring(lastIndex + 1);
+				}
 
-    public void reloadLibrary(SourceCodeRepository sourceCodeRepository) {
-        for (SourceCode sourceCode : sourceCodeRepository.list()) {
-            if (sourceCode.getName().endsWith(".lib.groovy")) {
-                compile(sourceCode);
-            }
-        }
-    }
+				GroovyCodeSource codeSource = new GroovyCodeSource(sourceCode.getSource(), className, codeBase);
+				codeSource.setCachable(false);
 
-    private Class<?> compile(SourceCode sourceCode) {
-        String name = sourceCode.getName();
-        Cache cache = compiledCache.get(name);
-        if (cache == null || !cache.sourceCode.getSource().equals(sourceCode.getSource())) {
-            synchronized (lock) {
-                //Discard compiled class
-                compiledCache.remove(name);
-                //Check extension
-                if (name.length() <= GROOVY_EXTENSION.length() || !name.endsWith(GROOVY_EXTENSION)) {
-                    throw new RuntimeException("Not a groovy source file");
-                }
-                //Extract class name
-                String chopped = name.substring(0, name.length() - GROOVY_EXTENSION.length());
-                String codeBase;
-                String className;
-                int lastIndex = chopped.lastIndexOf('/');
-                if (lastIndex == -1) {
-                    codeBase = "/";
-                    className = chopped;
-                } else {
-                    codeBase = "/" + chopped.substring(0, lastIndex);
-                    className = chopped.substring(lastIndex + 1);
-                }
+				Class<?> parsedClass;
 
-                GroovyCodeSource codeSource = new GroovyCodeSource(sourceCode.getSource(), className, codeBase);
-                codeSource.setCachable(false);
+				try {
+					parsedClass = groovyClassLoader.parseClass(codeSource);
+				} catch (CompilationFailedException e) {
+					throw new RuntimeException(e);
+				}
 
-                Class<?> parsedClass;
+				//Must specify package if script file is in a directory
+				if (parsedClass.getPackage() == null) {
+					if (!codeBase.equals("/")) {
+						throw new RuntimeException("Package declaration not found in " + name);
+					}
+				}
 
-                try {
-                    parsedClass = groovyClassLoader.parseClass(codeSource);
-                } catch (CompilationFailedException e) {
-                    throw new RuntimeException(e);
-                }
+				cache = new Cache();
+				cache.sourceCode = sourceCode;
+				cache.compiledClass = parsedClass;
+				compiledCache.put(name, cache);
+				return parsedClass;
+			}
+		} else {
+			return cache.compiledClass;
+		}
+	}
 
-                //Must specify package if script file is in a directory
-                if (parsedClass.getPackage() == null) {
-                    if (!codeBase.equals("/")) {
-                        throw new RuntimeException("Package declaration not found in " + name);
-                    }
-                }
+	public class GroovyEngine implements Engine {
+		GroovyScriptEngineImpl groovyScriptEngine = new GroovyScriptEngineImpl(groovyClassLoader);
 
-                cache = new Cache();
-                cache.sourceCode = sourceCode;
-                cache.compiledClass = parsedClass;
-                compiledCache.put(name, cache);
-                return parsedClass;
-            }
-        } else {
-            return cache.compiledClass;
-        }
-    }
+		@Override
+		public Object evaluate(SourceCode sourceCode) {
+			GroovyCompiledScript compiled = new GroovyCompiledScript(groovyScriptEngine, compile(sourceCode));
+			try {
+				return compiled.eval(groovyScriptEngine.getContext());
+			} catch (ScriptException e) {
+				throw new RuntimeException(e);
+			}
+		}
 
-    public class GroovyEngine implements Engine {
-        GroovyScriptEngineImpl groovyScriptEngine = new GroovyScriptEngineImpl(groovyClassLoader);
+		public GroovyEngineFactory getFactory() {
+			return GroovyEngineFactory.this;
+		}
+	}
 
-        @Override
-        public Object evaluate(SourceCode sourceCode) {
-            GroovyCompiledScript compiled = new GroovyCompiledScript(groovyScriptEngine, compile(sourceCode));
-            try {
-                return compiled.eval(groovyScriptEngine.getContext());
-            } catch (ScriptException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    public class Cache {
-        SourceCode sourceCode;
-        Class<?> compiledClass;
-    }
+	public class Cache {
+		SourceCode sourceCode;
+		Class<?> compiledClass;
+	}
 
 }
