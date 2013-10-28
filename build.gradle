@@ -97,6 +97,8 @@ project(':evaluatic-core') {
 project(':evaluatic-groovy') {
     dependencies {
         provided 'org.codehaus.groovy:groovy-all:1.8.9'
+        provided 'org.apache.velocity:velocity:1.7'
+        provided 'org.apache.velocity:velocity-tools:2.0'
         compile project(':evaluatic-core')
     }
 }
@@ -111,6 +113,8 @@ project(':evaluatic-example') {
         compile 'mysql:mysql-connector-java:5.1.18'
         compile 'org.springframework:spring:2.5.6.SEC03'
         compile 'org.codehaus.groovy:groovy-all:1.8.9'
+        compile 'org.apache.velocity:velocity:1.7'
+        compile 'org.apache.velocity:velocity-tools:2.0'
         compile project(':evaluatic-core')
         compile project(':evaluatic-groovy')
     }

@@ -1,3 +1,7 @@
 package com.github.safrain.evaluatic.example
 
-println 123
+import com.github.safrain.evaluatic.groovy.Web
+
+Web.processRequest()
+
+
