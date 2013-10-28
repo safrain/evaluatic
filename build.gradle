@@ -1,9 +1,14 @@
+def springVersion = "2.5.6.SEC03"
+def servletVersion = "2.5"
+def groovyVersion = "1.8.9"
+def slf4jVersion = "1.6.4"
+
 allprojects {
-    apply plugin: 'idea'
-    apply plugin: 'maven'
-    apply plugin: 'signing'
-    group = 'com.github.safrain'
-    version = '1.0-SNAPSHOT'
+    apply plugin: "idea"
+    apply plugin: "maven"
+    apply plugin: "signing"
+    group = "com.github.safrain"
+    version = "1.0-SNAPSHOT"
 
     repositories {
         mavenCentral()
@@ -11,8 +16,8 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: 'java'
-    apply plugin: 'eclipse'
+    apply plugin: "java"
+    apply plugin: "eclipse"
     configurations {
         provided
     }
@@ -26,12 +31,12 @@ subprojects {
     }
 }
 
-project(':evaluatic-core') {
+project(":evaluatic-core") {
     dependencies {
-        compile 'javax.servlet:servlet-api:2.5'
-        compile 'org.springframework:spring:2.5.6.SEC03'
-        compile 'mysql:mysql-connector-java:5.1.18'
-        testCompile 'org.codehaus.groovy:groovy-all:1.8.9'
+        compile "javax.servlet:servlet-api:${servletVersion}"
+        compile "org.springframework:spring:${springVersion}"
+        compile "mysql:mysql-connector-java:5.1.18"
+        testCompile "org.codehaus.groovy:groovy-all:${groovyVersion}"
     }
 
     signing {
@@ -39,13 +44,13 @@ project(':evaluatic-core') {
     }
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from 'build/docs/javadoc'
+        classifier = "javadoc"
+        from "build/docs/javadoc"
     }
 
     task sourcesJar(type: Jar) {
         from sourceSets.main.allSource
-        classifier = 'sources'
+        classifier = "sources"
     }
 
     artifacts {
@@ -60,32 +65,32 @@ project(':evaluatic-core') {
                 beforeDeployment { signing.signPom(it) }
 
                 repository(url:
-                        version.endsWith('SNAPSHOT') ?
-                            'https://oss.sonatype.org/content/repositories/snapshots/' : 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+                        version.endsWith("SNAPSHOT") ?
+                            "https://oss.sonatype.org/content/repositories/snapshots/" : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
                 ) {
                     authentication(userName: sonatypeUsername, password: sonatypePassword)
                 }
 
                 pom.project {
-                    description ''
-                    url 'http://safrain.github.io/evaluatic/'
+                    description ""
+                    url "http://safrain.github.io/evaluatic/"
                     licenses {
                         license {
-                            name 'WTFPL v2'
-                            url 'http://www.wtfpl.net'
-                            distribution 'repo'
+                            name "WTFPL v2"
+                            url "http://www.wtfpl.net"
+                            distribution "repo"
                         }
                     }
                     scm {
-                        url 'http://safrain.github.io/evaluatic/'
-                        connection 'scm:git:git@github.com:safrain/evaluatic.git'
-                        developerConnection 'scm:git:git@github.com:safrain/evaluatic.git'
+                        url "http://safrain.github.io/evaluatic/"
+                        connection "scm:git:git@github.com:safrain/evaluatic.git"
+                        developerConnection "scm:git:git@github.com:safrain/evaluatic.git"
                     }
                     developers {
                         developer {
-                            id 'safrain'
-                            name 'safrain'
-                            email 'z.safrain@gmail.com'
+                            id "safrain"
+                            name "safrain"
+                            email "z.safrain@gmail.com"
                         }
                     }
                 }
@@ -93,29 +98,31 @@ project(':evaluatic-core') {
         }
     }
 }
-
-project(':evaluatic-groovy') {
+project(":evaluatic-groovy") {
     dependencies {
-        provided 'org.codehaus.groovy:groovy-all:1.8.9'
-        provided 'org.apache.velocity:velocity:1.7'
-        provided 'org.apache.velocity:velocity-tools:2.0'
-        compile project(':evaluatic-core')
+        provided "org.codehaus.groovy:groovy-all:${groovyVersion}"
+        provided "org.apache.velocity:velocity:1.7"
+        provided "org.apache.velocity:velocity-tools:2.0"
+        provided "org.slf4j:slf4j-api:${slf4jVersion}"
+        compile project(":evaluatic-core")
     }
 }
-project(':evaluatic-example') {
-    apply plugin: 'war'
-    apply plugin: 'jetty'
+project(":evaluatic-example") {
+    apply plugin: "war"
+    apply plugin: "jetty"
     [jettyRun, jettyRunWar].each {
-        it.contextPath = '/'
+        it.contextPath = "/"
     }
     dependencies {
-        compile 'javax.servlet:servlet-api:2.5'
-        compile 'mysql:mysql-connector-java:5.1.18'
-        compile 'org.springframework:spring:2.5.6.SEC03'
-        compile 'org.codehaus.groovy:groovy-all:1.8.9'
-        compile 'org.apache.velocity:velocity:1.7'
-        compile 'org.apache.velocity:velocity-tools:2.0'
-        compile project(':evaluatic-core')
-        compile project(':evaluatic-groovy')
+        compile "javax.servlet:servlet-api:${servletVersion}"
+        compile "mysql:mysql-connector-java:5.1.18"
+        compile "org.springframework:spring:${springVersion}"
+        compile "org.codehaus.groovy:groovy-all:${groovyVersion}"
+        compile "org.apache.velocity:velocity:1.7"
+        compile "org.apache.velocity:velocity-tools:2.0"
+        compile "org.slf4j:slf4j-api:${slf4jVersion}"
+        compile "log4j:log4j:1.2.17"
+        compile project(":evaluatic-core")
+        compile project(":evaluatic-groovy")
     }
 }

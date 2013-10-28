@@ -45,7 +45,7 @@ public class MergedRepository implements SourceCodeRepository {
     }
 
     @Override
-    public List<SourceCode> list() {
+    public List<String> list() {
         throw new UnsupportedOperationException();
     }
 

@@ -1,5 +1,9 @@
 *.class
-
+*.iml
+*.ipr
+*.iws
+build
+bin
 # Package Files #
 *.jar
 *.war
