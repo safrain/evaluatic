@@ -9,14 +9,16 @@
         <property name="engineFactory">
             <bean class="com.github.safrain.evaluatic.groovy.GroovyEngineFactory"/>
         </property>
-        <property name="sourceCodeRepository">
-            <bean class="com.github.safrain.evaluatic.repository.FileSystemRepository">
-                <property name="baseDirectory" value="/home/safrain/code/evaluatic/link"/>
-            </bean>
-            <!--<bean class="com.github.safrain.evaluatic.repository.ClassPathRepository">-->
-                <!--<property name="basePackage" value="com/github/safrain/evaluatic/example"/>-->
-            <!--</bean>-->
-        </property>
     </bean>
 
+    <bean name="sourceCodeRepository" class="com.github.safrain.evaluatic.repository.MergedRepository">
+        <property name="repositories">
+            <list>
+                <bean class="com.github.safrain.evaluatic.repository.FileSystemRepository">
+                    <property name="baseDirectory" value="/home/safrain/code/evaluatic/link"/>
+                </bean>
+                <bean class="com.github.safrain.evaluatic.repository.ClassPathRepository"/>
+            </list>
+        </property>
+    </bean>
 </beans>

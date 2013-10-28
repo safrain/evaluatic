@@ -23,7 +23,7 @@ public class ClassPathRepository implements SourceCodeRepository, ResourceLoader
 
     @Override
     public boolean exists(String name) {
-        return resourceLoader.getResource(getLocation(name)) != null;
+        return resourceLoader.getResource(getLocation(name)).exists();
     }
 
     @Override

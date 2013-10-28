@@ -7,35 +7,25 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpSession
 
-
 class Web {
-    static def defaultTemplateEngine = 'velocity'
-    static def engines = [:]
-    static def runnableExtension = ['groovy']
-    static def extensionHeaderMap = [
-            'vm': 'text/html',
-            'html': 'text/html',
-            'htm': 'text/html',
-            'json': 'application/json',
-            'js': 'text/javascript',
-            'txt': 'text/plain',
-            'css': 'text/css'
-    ]
+    final static defaultTemplateEngine = new InheritableThreadLocal<String>()
+    final static templateEngines = new InheritableThreadLocal<Map>()
+    final static runnableExtensions = new InheritableThreadLocal<List>()
+    final static extensionMapping = new InheritableThreadLocal<Map>()
+    final static prefix = new InheritableThreadLocal<String>()
 
     static void print(obj) {
-        ServletSupport.response.characterEncoding = RuntimeSupport.scriptRuntime.charset
         ServletSupport.response.writer.print(obj)
     }
 
     static void println(obj) {
-        ServletSupport.response.characterEncoding = RuntimeSupport.scriptRuntime.charset
         ServletSupport.response.writer.println(obj)
     }
 
     static void mav(String viewName, Map model, String engine = null) {
         def template = RuntimeSupport.loadString(viewName)
-        def templateEngine = engines[engine == null ? defaultTemplateEngine : engine]
-        web.print templateEngine(template, model)
+        def templateEngine = templateEngines.get()[engine == null ? defaultTemplateEngine : engine]
+        Web.print templateEngine(template, model)
     }
 
     static void redirect(String path) {
@@ -43,14 +33,22 @@ class Web {
     }
 
     static processRequest() {
-        if (runnableExtension.find { RuntimeSupport.sourceName.endsWith('.' + it) } != null) {
-            RuntimeSupport.eval RuntimeSupport.sourceName
+        String name
+
+        if (prefix.get() == null || !RuntimeSupport.sourceName.startsWith(prefix.get())) {
+            name = RuntimeSupport.sourceName
         } else {
-            String header = extensionHeaderMap.find { k, v -> RuntimeSupport.sourceName.endsWith('.' + k) }?.value
+            name = RuntimeSupport.sourceName.substring(prefix.get().length())
+        }
+
+        if (runnableExtensions.get().find { name.endsWith('.' + it) } != null) {
+            RuntimeSupport.eval name
+        } else {
+            String header = extensionMapping.find { k, v -> name.endsWith('.' + k) }?.value
             if (header != null) {
                 response.setHeader('Content-Type', header)
             }
-            ServletSupport.response.outputStream.print(RuntimeSupport.loadString(RuntimeSupport.sourceName))
+            ServletSupport.response.outputStream.print(RuntimeSupport.loadString(name))
             ServletSupport.response.outputStream.close()
         }
     }

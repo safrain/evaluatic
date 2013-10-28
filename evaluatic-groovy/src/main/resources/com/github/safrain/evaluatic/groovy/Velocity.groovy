@@ -11,7 +11,7 @@ import org.apache.velocity.tools.generic.NumberTool
 import static com.github.safrain.evaluatic.support.RuntimeSupport.*
 
 
-class VelocityTemplateEngine {
+class Velocity {
     static toolbox = [
             date: new DateTool(),
             math: new MathTool(),
@@ -47,7 +47,4 @@ class VelocityTemplateEngine {
         evaluate(ctxLayout, swLayout, layoutTemplate)
         swLayout.buffer.toString()
     }
-}
-web.engines['velocity'] = { String template, Map<String, Object> model ->
-    VelocityTemplateEngine.render(template, model)
 }
