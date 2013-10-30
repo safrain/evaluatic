@@ -122,6 +122,7 @@ project(":evaluatic-example") {
         compile "org.apache.velocity:velocity-tools:2.0"
         compile "org.slf4j:slf4j-api:${slf4jVersion}"
         compile "log4j:log4j:1.2.17"
+        compile "commons-dbcp:commons-dbcp:1.2.2"
         compile project(":evaluatic-core")
         compile project(":evaluatic-groovy")
     }
